@@ -34,6 +34,8 @@ export interface CodeGenerationContext {
     | LatexLayout['typography']
     | HtmlLayout['typography']
     | DocxLayout['typography']
+  /** Whether document generation should avoid page breaks for entries. */
+  avoidPageBreak?: boolean
 }
 
 /**

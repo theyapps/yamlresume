@@ -191,7 +191,8 @@ ${fontList
 
     return `%% line spacing
 \\usepackage{setspace}
-\\setstretch{${stretchValue}}`
+\\setstretch{${stretchValue}}
+\\usepackage{needspace}` // TODO: This is a hack it needs to go somewhere else, but it is needed for the samepage rendering when avoidPageBreak is true
   }
 
   /**

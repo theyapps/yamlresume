@@ -67,6 +67,8 @@ type DocxAdvanced = {
 type DocxPage = {
   /** Whether to display page numbers. */
   showPageNumbers?: boolean
+  /** Whether to keep resume entries together across page breaks. */
+  avoidPageBreak?: boolean
   /** Defines page margin settings for document layout. */
   margins?: Margins
   /** Defines the paper size for the document. */

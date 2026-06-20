@@ -375,15 +375,22 @@ class ModerncvBase extends LatexRenderer {
       return ''
     }
 
-    return `\\section{${sectionNames.education}}
+    const layout = this.resume.layouts?.[this.layoutIndex]
+    const page = (layout as LatexLayout)?.page
 
-${education
-  .map(
-    ({
-      computed: { startDate, dateRange, degreeAreaAndScore, summary, courses },
-      institution,
-      url,
-    }) => `\\cventry{${showIfNotEmpty(startDate, dateRange)}}
+    const needSpace = showIf(page?.avoidPageBreak, `\\Needspace{6\\baselineskip}\n`)
+    //const samePageBegin = showIf(page?.avoidPageBreak, `\\begin{samepage}\n`)
+    //const samePageEnd = showIf(page?.avoidPageBreak, `\\end{samepage}\n`)
+
+    return `${needSpace}\\section{${sectionNames.education}}\n\n
+    
+    ${education
+      .map(
+        ({
+          computed: { startDate, dateRange, degreeAreaAndScore, summary, courses },
+          institution,
+          url,
+        }) => `\\cventry{${showIfNotEmpty(startDate, dateRange)}}
         {${degreeAreaAndScore}}
         {${this.renderLinkedText(institution, url)}}
         {${this.renderUrl(url)}}

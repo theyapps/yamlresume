@@ -50,6 +50,8 @@ interface DocxGenerationOptions {
   fontSize: number
   /** Line spacing value in twips. */
   lineSpacing: number
+  /** Whether document generation should avoid page breaks for entries. */
+  avoidPageBreak: boolean
 }
 
 /**
@@ -85,6 +87,7 @@ function getOptionsFromContext(
     fontSize,
     fontFamily: typography?.fontFamily,
     lineSpacing,
+    avoidPageBreak: context?.avoidPageBreak ?? false,
   }
 }
 
@@ -257,6 +260,7 @@ function paragraphNodeToParagraphs(
     return [
       new Paragraph({
         spacing: { after: 100, line: options.lineSpacing },
+        keepLines: options.avoidPageBreak,
       }),
     ]
   }
@@ -271,6 +275,7 @@ function paragraphNodeToParagraphs(
     new Paragraph({
       children,
       spacing: { after: 100, line: options.lineSpacing },
+      keepLines: options.avoidPageBreak,
     }),
   ]
 }
@@ -294,6 +299,7 @@ function textNodeToParagraphs(
     new Paragraph({
       children,
       spacing: { after: 100, line: options.lineSpacing },
+      keepLines: options.avoidPageBreak,
     }),
   ]
 }
@@ -401,6 +407,9 @@ function convertListItem(
           new Paragraph({
             children,
             spacing: { after: 60, line: options.lineSpacing },
+            keepLines: options.avoidPageBreak,
+            keepNext:
+              options.avoidPageBreak && isFirstParagraph ? options.avoidPageBreak : undefined,
             indent: indent > 0 ? { left: indent } : undefined,
           })
         )
