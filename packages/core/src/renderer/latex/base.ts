@@ -191,9 +191,18 @@ ${fontList
 
     return `%% line spacing
 \\usepackage{setspace}
-\\setstretch{${stretchValue}}
-\\usepackage{needspace}` // TODO: This is a hack it needs to go somewhere else, but it is needed for the samepage rendering when avoidPageBreak is true
-  }
+\\setstretch{${stretchValue}}`}
+
+  /**
+   * Render the use package line for needspace
+   *
+   * @returns The LaTeX code for line spacing configuration
+   */
+    protected renderNeedspacePackage(): string {
+      const layout = this.resume.layouts?.[this.layoutIndex] as LatexLayout
+      return layout?.page.avoidPageBreak ? `\\usepackage{needspace}` : ''
+    }
+
 
   /**
    * Render URL configuration to use normal text instead of monospace.

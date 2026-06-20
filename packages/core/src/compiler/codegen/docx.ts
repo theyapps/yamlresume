@@ -409,7 +409,9 @@ function convertListItem(
             spacing: { after: 60, line: options.lineSpacing },
             keepLines: options.avoidPageBreak,
             keepNext:
-              options.avoidPageBreak && isFirstParagraph ? options.avoidPageBreak : undefined,
+              options.avoidPageBreak && isFirstParagraph
+                ? options.avoidPageBreak
+                : undefined,
             indent: indent > 0 ? { left: indent } : undefined,
           })
         )

@@ -47,11 +47,13 @@ export const LatexPageSchema = z.object({
     .object({
       showPageNumbers: nullifySchema(ShowPageNumbersSchema),
       paperSize: nullifySchema(PaperSizeOptionSchema),
-      avoidPageBreak: nullifySchema(z.boolean().meta({
-        title: 'Avoid page break',
-        description:
-          'Whether to keep resume entry headers and bullets together across pages.',
-      })),
+      avoidPageBreak: nullifySchema(
+        z.boolean().meta({
+          title: 'Avoid page break',
+          description:
+            'Whether to keep resume entry headers and bullets together across pages.',
+        })
+      ),
       ...MarginsSchema.shape,
     })
     .nullish()

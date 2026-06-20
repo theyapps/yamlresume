@@ -233,6 +233,9 @@ class ModerncvBase extends LatexRenderer {
       // line spacing
       this.renderLineSpacingConfig(),
 
+      // needspace for avoiding page break when `avoidPageBreak` is true.
+      this.renderNeedspacePackage(),
+
       // URL styling - use same font as surrounding text instead of monospace
       this.renderUrlConfig(),
 
@@ -344,9 +347,17 @@ class ModerncvBase extends LatexRenderer {
       },
     } = this.resume
 
+    const layout = this.resume.layouts?.[this.layoutIndex]
+    const page = (layout as LatexLayout)?.page
+
+    const needSpace = showIf(
+      page?.avoidPageBreak,
+      '\\Needspace{6\\baselineskip}\n'
+    )
+
     return `${showIfNotEmpty(
       summary,
-      `\\section{${sectionNames.basics}}
+      `${needSpace}\\section{${sectionNames.basics}}
 
 \\cvline{}{${summary}}`
     )}`
@@ -378,16 +389,23 @@ class ModerncvBase extends LatexRenderer {
     const layout = this.resume.layouts?.[this.layoutIndex]
     const page = (layout as LatexLayout)?.page
 
-    const needSpace = showIf(page?.avoidPageBreak, `\\Needspace{6\\baselineskip}\n`)
-    //const samePageBegin = showIf(page?.avoidPageBreak, `\\begin{samepage}\n`)
-    //const samePageEnd = showIf(page?.avoidPageBreak, `\\end{samepage}\n`)
+    const needSpace = showIf(
+      page?.avoidPageBreak,
+      '\\Needspace{6\\baselineskip}\n'
+    )
 
     return `${needSpace}\\section{${sectionNames.education}}\n\n
     
     ${education
       .map(
         ({
-          computed: { startDate, dateRange, degreeAreaAndScore, summary, courses },
+          computed: {
+            startDate,
+            dateRange,
+            degreeAreaAndScore,
+            summary,
+            courses,
+          },
           institution,
           url,
         }) => `\\cventry{${showIfNotEmpty(startDate, dateRange)}}
@@ -408,8 +426,8 @@ class ModerncvBase extends LatexRenderer {
             '\n'
           )}`
         )}}`
-  )
-  .join('\n\n')}`
+      )
+      .join('\n\n')}`
   }
 
   /**
@@ -432,7 +450,15 @@ class ModerncvBase extends LatexRenderer {
       return ''
     }
 
-    return `\\section{${computed.sectionNames.work}}
+    const layout = this.resume.layouts?.[this.layoutIndex]
+    const page = (layout as LatexLayout)?.page
+
+    const needSpace = showIf(
+      page?.avoidPageBreak,
+      '\\Needspace{6\\baselineskip}\n'
+    )
+
+    return `${needSpace}\\section{${computed.sectionNames.work}}
 
 ${work
   .map(
@@ -488,7 +514,15 @@ ${work
       terms,
     } = getTemplateTranslations(locale?.language)
 
-    return `\\section{${sectionNames.languages}}
+    const layout = this.resume.layouts?.[this.layoutIndex]
+    const page = (layout as LatexLayout)?.page
+
+    const needSpace = showIf(
+      page?.avoidPageBreak,
+      '\\Needspace{6\\baselineskip}\n'
+    )
+
+    return `${needSpace}\\section{${sectionNames.languages}}
 
 ${languages
   .map(
@@ -524,7 +558,15 @@ ${languages
       return ''
     }
 
-    return `\\section{${sectionNames.skills}}
+    const layout = this.resume.layouts?.[this.layoutIndex]
+    const page = (layout as LatexLayout)?.page
+
+    const needSpace = showIf(
+      page?.avoidPageBreak,
+      '\\Needspace{6\\baselineskip}\n'
+    )
+
+    return `${needSpace}\\section{${sectionNames.skills}}
 
 ${skills
   .map(
@@ -554,7 +596,15 @@ ${skills
       return ''
     }
 
-    return `\\section{${sectionNames.awards}}
+    const layout = this.resume.layouts?.[this.layoutIndex]
+    const page = (layout as LatexLayout)?.page
+
+    const needSpace = showIf(
+      page?.avoidPageBreak,
+      '\\Needspace{6\\baselineskip}\n'
+    )
+
+    return `${needSpace}\\section{${sectionNames.awards}}
 
 ${awards
   .map(
@@ -585,7 +635,15 @@ ${awards
       return ''
     }
 
-    return `\\section{${sectionNames.certificates}}
+    const layout = this.resume.layouts?.[this.layoutIndex]
+    const page = (layout as LatexLayout)?.page
+
+    const needSpace = showIf(
+      page?.avoidPageBreak,
+      '\\Needspace{6\\baselineskip}\n'
+    )
+
+    return `${needSpace}\\section{${sectionNames.certificates}}
 
 ${certificates
   .map(
@@ -616,7 +674,15 @@ ${certificates
       return ''
     }
 
-    return `\\section{${sectionNames.publications}}
+    const layout = this.resume.layouts?.[this.layoutIndex]
+    const page = (layout as LatexLayout)?.page
+
+    const needSpace = showIf(
+      page?.avoidPageBreak,
+      '\\Needspace{6\\baselineskip}\n'
+    )
+
+    return `${needSpace}\\section{${sectionNames.publications}}
 
 ${publications
   .map(
@@ -652,9 +718,17 @@ ${publications
       return ''
     }
 
+    const layout = this.resume.layouts?.[this.layoutIndex]
+    const page = (layout as LatexLayout)?.page
+
+    const needSpace = showIf(
+      page?.avoidPageBreak,
+      '\\Needspace{6\\baselineskip}\n'
+    )
+
     switch (this.style) {
       case 'banking':
-        return `\\section{${sectionNames.references}}
+        return `${needSpace}\\section{${sectionNames.references}}
 
 ${references
   .map(
@@ -681,7 +755,7 @@ ${references
         // be hyphenated while `email`s are generally longer and cannot be
         // hyphenated. So if email is too long, the visually result would be
         // pretty as it will overlap with the right side text.
-        return `\\section{${sectionNames.references}}
+        return `${needSpace}\\section{${sectionNames.references}}
 
 ${references
   .map(
@@ -720,7 +794,15 @@ ${references
       return ''
     }
 
-    return `\\section{${computed.sectionNames.projects}}
+    const layout = this.resume.layouts?.[this.layoutIndex]
+    const page = (layout as LatexLayout)?.page
+
+    const needSpace = showIf(
+      page?.avoidPageBreak,
+      '\\Needspace{6\\baselineskip}\n'
+    )
+
+    return `${needSpace}\\section{${computed.sectionNames.projects}}
 
 ${projects
   .map(
@@ -765,7 +847,15 @@ ${projects
       return ''
     }
 
-    return `\\section{${computed.sectionNames.interests}}
+    const layout = this.resume.layouts?.[this.layoutIndex]
+    const page = (layout as LatexLayout)?.page
+
+    const needSpace = showIf(
+      page?.avoidPageBreak,
+      '\\Needspace{6\\baselineskip}\n'
+    )
+
+    return `${needSpace}\\section{${computed.sectionNames.interests}}
 
 ${interests
   .map(({ name, computed: { keywords } }) => `\\cvline{${name}}{${keywords}}`)
@@ -786,7 +876,15 @@ ${interests
       return ''
     }
 
-    return `\\section{${computed.sectionNames.volunteer}}
+    const layout = this.resume.layouts?.[this.layoutIndex]
+    const page = (layout as LatexLayout)?.page
+
+    const needSpace = showIf(
+      page?.avoidPageBreak,
+      '\\Needspace{6\\baselineskip}\n'
+    )
+
+    return `${needSpace}\\section{${computed.sectionNames.volunteer}}
 
 ${volunteer
   .map(
