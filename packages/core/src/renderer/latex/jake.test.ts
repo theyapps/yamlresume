@@ -127,6 +127,22 @@ describe('JakeRenderer', () => {
       expect(result).toContain('\\usepackage[hidelinks]{hyperref}')
     })
 
+    it('should include needspace package when keepEntriesTogether is set', () => {
+      resume.layouts = [
+        {
+          engine: 'latex',
+          page: {
+            keepEntriesTogether: 6,
+          },
+        },
+      ]
+
+      renderer = new JakeRenderer(resume, layoutIndex)
+      const result = renderer.renderPreamble()
+
+      expect(result).toContain('\\usepackage{needspace}')
+    })
+
     it('should render custom resume commands', () => {
       const result = renderer.renderPreamble()
 
@@ -455,6 +471,45 @@ describe('JakeRenderer', () => {
       expect(result).toContain(institution)
       expect(result).toContain(`\\url{${url}}`)
     })
+
+    it('should prefix only the section header with needspace when configured', () => {
+      resume.layouts = [
+        {
+          engine: 'latex',
+          page: {
+            keepEntriesTogether: 6,
+          },
+        },
+      ]
+      resume.content.education = [
+        {
+          institution: 'University',
+          area: 'Computer Science',
+          degree: 'Bachelor',
+          startDate: 'Jan 1, 2020',
+          endDate: 'Jan 1, 2024',
+          summary: '',
+        },
+        {
+          institution: 'Graduate School',
+          area: 'Software Engineering',
+          degree: 'Master',
+          startDate: 'Jan 1, 2024',
+          endDate: 'Jan 1, 2026',
+          summary: '',
+        },
+      ]
+
+      renderer = new JakeRenderer(resume, 0)
+      const result = renderer.renderEducation()
+
+      expect(result).toContain(
+        '\\needspace{6\\baselineskip}\n\\section{Education}\n\\resumeSubheading'
+      )
+      expect(result).not.toContain(
+        '\\needspace{6\\baselineskip}\n\\resumeSubheading\n{Graduate School}{'
+      )
+    })
   })
 
   describe('renderWork', () => {
@@ -735,6 +790,38 @@ describe('JakeRenderer', () => {
       expect(result).toContain(`{${position}}`)
       expect(result).toContain(`{${organization}}`)
       expect(result).toContain(`\\url{${url}}`)
+    })
+
+    it('should prefix only volunteer section header with needspace when configured', () => {
+      resume.layouts = [
+        {
+          engine: 'latex',
+          page: {
+            keepEntriesTogether: 4,
+          },
+        },
+      ]
+      resume.content.volunteer = [
+        {
+          organization: 'Code for Good',
+          position: 'Technical Lead',
+          startDate: '2023-01',
+          endDate: '2023-12',
+          summary: '',
+        },
+      ]
+
+      renderer = new JakeRenderer(resume, 0)
+      const result = renderer.renderVolunteer()
+
+      expect(result).toContain(
+        '\\needspace{4\\baselineskip}\n\\section{Volunteer}\n\\resumeSubheading'
+      )
+      expect(result).not.toContain(
+        '\\needspace{4\\baselineskip}\n\\resumeSubheading'
+      )
+      expect(result).toContain('{Technical Lead}')
+      expect(result).toContain('{Code for Good}')
     })
   })
 

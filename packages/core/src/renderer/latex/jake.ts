@@ -142,10 +142,67 @@ class JakeRenderer extends LatexRenderer {
         '\\usepackage{enumitem}',
         this.renderFontawesome(),
         '\\usepackage[hidelinks]{hyperref}',
+        this.renderNeedspaceConfig(),
         '\\usepackage{titlesec}',
       ],
       '\n'
     )
+  }
+
+  /**
+   * Read the configured keepEntriesTogether reservation.
+   */
+  private getKeepEntriesTogether(): number | undefined {
+    const layout = this.resume.layouts?.[this.layoutIndex]
+
+    if (layout?.engine !== 'latex') {
+      return undefined
+    }
+
+    return layout.page?.keepEntriesTogether
+  }
+
+  /**
+   * Render the needspace package when entry reservations are enabled.
+   */
+  private renderNeedspaceConfig(): string {
+    return this.getKeepEntriesTogether() ? '\\usepackage{needspace}' : ''
+  }
+
+  /**
+   * Render the needspace directive when entry reservations are enabled.
+   */
+  private renderNeedspaceDirective(): string {
+    const keepEntriesTogether = this.getKeepEntriesTogether()
+
+    if (!keepEntriesTogether) {
+      return ''
+    }
+
+    return `\\needspace{${keepEntriesTogether}\\baselineskip}`
+  }
+
+  /**
+   * Render a section of entry blocks, reserving space before the section
+   * heading when configured.
+   */
+  private renderEntriesSection(sectionName: string, entries: string[]): string {
+    const needspaceDirective = this.renderNeedspaceDirective()
+
+    if (isEmptyValue(entries)) {
+      return joinNonEmptyString([
+        needspaceDirective,
+        `\\section{${sectionName}}`,
+      ])
+    }
+
+    if (!needspaceDirective) {
+      return `\\section{${sectionName}}\n${entries.join('\n\n')}`
+    }
+
+    return `${needspaceDirective}
+\\section{${sectionName}}
+${entries.join('\n\n')}`
   }
 
   /**
@@ -387,8 +444,9 @@ ${summary}
       return ''
     }
 
-    return `\\section{${sectionNames.education}}
-${education
+    return this.renderEntriesSection(
+      sectionNames.education,
+      education
   .map(
     ({
       computed: { startDate, dateRange, degreeAreaAndScore, summary, courses },
@@ -416,7 +474,7 @@ ${joinNonEmptyString(
         '\n'
       )
   )
-  .join('\n\n')}`
+      )
   }
 
   /**
@@ -439,8 +497,9 @@ ${joinNonEmptyString(
       return ''
     }
 
-    return `\\section{${computed.sectionNames.work}}
-${work
+    return this.renderEntriesSection(
+      computed.sectionNames.work,
+      work
   .map(
     ({
       computed: { startDate, dateRange, summary, keywords },
@@ -470,7 +529,7 @@ ${joinNonEmptyString(
       )
     }
   )
-  .join('\n\n')}`
+    )
   }
 
   /**
@@ -574,8 +633,9 @@ ${skills
       return ''
     }
 
-    return `\\section{${sectionNames.awards}}
-${awards
+    return this.renderEntriesSection(
+      sectionNames.awards,
+      awards
   .map(({ computed: { date, summary }, awarder, title }) =>
     joinNonEmptyString(
       [
@@ -592,7 +652,7 @@ ${summary}
       '\n'
     )
   )
-  .join('\n\n')}`
+    )
   }
 
   /**
@@ -612,15 +672,16 @@ ${summary}
       return ''
     }
 
-    return `\\section{${sectionNames.certificates}}
-${certificates
+    return this.renderEntriesSection(
+      sectionNames.certificates,
+      certificates
   .map(
     ({ computed: { date }, issuer, name, url }) =>
       `\\resumeSubheading
 {${this.renderLinkedText(name, url)}}{${date}}
 {${issuer}}{${this.renderUrl(url)}}`
   )
-  .join('\n\n')}`
+    )
   }
 
   /**
@@ -640,8 +701,9 @@ ${certificates
       return ''
     }
 
-    return `\\section{${sectionNames.publications}}
-${publications
+    return this.renderEntriesSection(
+      sectionNames.publications,
+      publications
   .map(({ computed: { releaseDate, summary }, name, publisher, url }) =>
     joinNonEmptyString(
       [
@@ -658,7 +720,7 @@ ${summary}
       '\n'
     )
   )
-  .join('\n\n')}`
+    )
   }
 
   /**
@@ -678,8 +740,9 @@ ${summary}
       return ''
     }
 
-    return `\\section{${sectionNames.references}}
-${references
+    return this.renderEntriesSection(
+      sectionNames.references,
+      references
   .map(({ email, relationship, name, phone, computed: { summary } }) =>
     joinNonEmptyString(
       [
@@ -696,7 +759,7 @@ ${summary}
       '\n'
     )
   )
-  .join('\n\n')}`
+    )
   }
 
   /**
@@ -721,8 +784,9 @@ ${summary}
       return ''
     }
 
-    return `\\section{${computed.sectionNames.projects}}
-${projects
+    return this.renderEntriesSection(
+      computed.sectionNames.projects,
+      projects
   .map(
     ({
       name,
@@ -751,7 +815,7 @@ ${joinNonEmptyString(
         '\n'
       )
   )
-  .join('\n\n')}`
+      )
   }
 
   /**
@@ -800,8 +864,9 @@ ${interests
       return ''
     }
 
-    return `\\section{${computed.sectionNames.volunteer}}
-${volunteer
+    return this.renderEntriesSection(
+      computed.sectionNames.volunteer,
+      volunteer
   .map(
     ({
       position,
@@ -824,7 +889,7 @@ ${summary}
         '\n'
       )
   )
-  .join('\n\n')}`
+      )
   }
 
   /**
