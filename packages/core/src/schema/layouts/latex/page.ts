@@ -36,6 +36,15 @@ export const ShowPageNumbersSchema = z.boolean().meta({
   title: 'Show Page Numbers',
   description: 'Whether to show page numbers on the page.',
 })
+/**
+ * A zod schema for the keep entries together setting (LaTeX).
+ */
+export const LatexKeepEntriesTogethers = z.number().positive().meta({
+  title: 'Keep Entries Together',
+  description:
+    'Reserve space to keep resume entries from splitting across pages by specifying how many baselineskips to reserve before each entry.',
+})
+
 
 /**
  * A zod schema for validating page configuration.
@@ -47,6 +56,7 @@ export const LatexPageSchema = z.object({
     .object({
       showPageNumbers: nullifySchema(ShowPageNumbersSchema),
       paperSize: nullifySchema(PaperSizeOptionSchema),
+      keepEntriesTogether: nullifySchema(LatexKeepEntriesTogethers),
       ...MarginsSchema.shape,
     })
     .nullish()

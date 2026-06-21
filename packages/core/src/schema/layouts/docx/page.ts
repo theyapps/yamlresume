@@ -29,6 +29,15 @@ import { DocxPaperSizeOptionSchema } from '../../primitives'
 import { nullifySchema } from '../../utils'
 import { MarginsSchema } from '../common/margins'
 import { ShowPageNumbersSchema } from '../latex/page'
+/**
+ * A zod schema for the keep entries together setting (DOCX).
+ */
+export const DocxKeepEntriesTogethers = z.number().positive().meta({
+  title: 'Keep Entries Together',
+  description:
+    'Reserve space to keep resume entries from splitting across pages by specifying how many lines to reserve before each entry.',
+})
+
 
 /**
  * A zod schema for validating docx page configuration.
@@ -40,6 +49,7 @@ export const DocxPageSchema = z.object({
     .object({
       showPageNumbers: nullifySchema(ShowPageNumbersSchema),
       paperSize: nullifySchema(DocxPaperSizeOptionSchema),
+      keepEntriesTogether: nullifySchema(DocxKeepEntriesTogethers),
       ...MarginsSchema.shape,
     })
     .nullish()

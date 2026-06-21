@@ -48,6 +48,8 @@ describe('DocxPageSchema', () => {
         },
       },
       { page: { showPageNumbers: true, paperSize: 'a4' } },
+      { page: { keepEntriesTogether: 6 } },
+      { page: { keepEntriesTogether: 10.5 } },
     ]
 
     for (const page of tests) {
@@ -67,6 +69,38 @@ describe('DocxPageSchema', () => {
               properties: {
                 showPageNumbers: {
                   errors: ['Invalid input: expected boolean, received string'],
+                },
+              },
+            },
+          },
+        },
+      },
+      {
+        page: { keepEntriesTogether: 'true' },
+        error: {
+          errors: [],
+          properties: {
+            page: {
+              errors: [],
+              properties: {
+                keepEntriesTogether: {
+                  errors: ['Invalid input: expected number, received string'],
+                },
+              },
+            },
+          },
+        },
+      },
+      {
+        page: { keepEntriesTogether: -5 },
+        error: {
+          errors: [],
+          properties: {
+            page: {
+              errors: [],
+              properties: {
+                keepEntriesTogether: {
+                  errors: ['Too small: expected number to be >0'],
                 },
               },
             },
