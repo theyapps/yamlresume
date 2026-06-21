@@ -222,6 +222,26 @@ describe('ModerncvBase', () => {
       expect(result).toContain('\\nopagenumbers{}')
     })
 
+    it('should include needspace package when keepEntriesTogether is set', () => {
+      const keepEntriesResume = cloneDeep(resume)
+      keepEntriesResume.layouts = [
+        {
+          engine: 'latex' as const,
+          page: {
+            keepEntriesTogether: 6,
+          },
+        },
+      ]
+
+      const renderer = new ModerncvBankingRenderer(
+        keepEntriesResume,
+        layoutIndex
+      )
+      const result = renderer.renderPreamble()
+
+      expect(result).toContain('\\usepackage{needspace}')
+    })
+
     it('should use default font size when layout is undefined', () => {
       resume.layouts = undefined
       renderer = new ModerncvBankingRenderer(resume, layoutIndex)
@@ -571,6 +591,34 @@ describe('ModerncvBase', () => {
       expect(result).toContain(institution)
       expect(result).toContain(`{\\url{${url}}}`)
     })
+
+    it('should prefix entries with needspace when keepEntriesTogether is set', () => {
+      resume.layouts = [
+        {
+          engine: 'latex',
+          page: {
+            keepEntriesTogether: 6,
+          },
+        },
+      ]
+      resume.content.education = [
+        {
+          institution: 'University',
+          area: 'Computer Science',
+          degree: 'Bachelor',
+          startDate: 'Jan 1, 2020',
+          endDate: 'Jan 1, 2024',
+          summary: '',
+        },
+      ]
+
+      renderer = new ModerncvBankingRenderer(resume, 0)
+      const result = renderer.renderEducation()
+
+      expect(result).toContain(
+        '\\needspace{6\\baselineskip}\n\\section{Education}\n\n\\cventry{Jan 2020–Jan 2024}'
+      )
+    })
   })
 
   describe('renderWork', () => {
@@ -876,6 +924,35 @@ describe('ModerncvBase', () => {
       expect(result).toContain(`{${organization}}`)
       expect(result).toContain(`{\\url{${url}}}`)
       expect(result).toContain('')
+    })
+
+    it('should prefix volunteer entries with needspace when configured', () => {
+      resume.layouts = [
+        {
+          engine: 'latex',
+          page: {
+            keepEntriesTogether: 4,
+          },
+        },
+      ]
+      resume.content.volunteer = [
+        {
+          organization: 'Code for Good',
+          position: 'Technical Lead',
+          startDate: '2023-01',
+          endDate: '2023-12',
+          summary: '',
+        },
+      ]
+
+      renderer = new ModerncvBankingRenderer(resume, 0)
+      const result = renderer.renderVolunteer()
+
+      expect(result).toContain(
+        '\\needspace{4\\baselineskip}\n\\section{Volunteer}\n\n\\cventry{'
+      )
+      expect(result).toContain('{Technical Lead}')
+      expect(result).toContain('{Code for Good}')
     })
   })
 })

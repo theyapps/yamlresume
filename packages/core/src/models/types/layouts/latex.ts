@@ -77,6 +77,8 @@ type LatexPage = {
   margins?: Margins
   /** * Defines the paper size for the document.  */
   paperSize?: PaperSize
+  /** Reserve baselineskips before each entry to reduce page splits. */
+  keepEntriesTogether?: number
 }
 
 /**

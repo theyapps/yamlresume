@@ -152,6 +152,70 @@ class ModerncvBase extends LatexRenderer {
   }
 
   /**
+   * Read the configured keepEntriesTogether reservation.
+   */
+  private getKeepEntriesTogether(): number | undefined {
+    const layout = this.resume.layouts?.[this.layoutIndex]
+
+    if (layout?.engine !== 'latex') {
+      return undefined
+    }
+
+    return layout.page?.keepEntriesTogether
+  }
+
+  /**
+   * Render the needspace package when entry reservations are enabled.
+   */
+  private renderNeedspaceConfig(): string {
+    return this.getKeepEntriesTogether()
+      ? '\\usepackage{needspace}'
+      : ''
+  }
+
+  /**
+   * Render the needspace directive when entry reservations are enabled.
+   */
+  private renderNeedspaceDirective(): string {
+    const keepEntriesTogether = this.getKeepEntriesTogether()
+
+    if (!keepEntriesTogether) {
+      return ''
+    }
+
+    return `\\needspace{${keepEntriesTogether}\\baselineskip}`
+  }
+
+  /**
+   * Render a section of entry blocks, reserving space for the section title and
+   * first entry together when configured.
+   */
+  private renderEntriesSection(sectionName: string, entries: string[]): string {
+    const [firstEntry, ...remainingEntries] = entries
+    const needspaceDirective = this.renderNeedspaceDirective()
+
+    if (!firstEntry) {
+      return `\\section{${sectionName}}`
+    }
+
+    if (!needspaceDirective) {
+      return `\\section{${sectionName}}
+
+${entries.join('\n\n')}`
+    }
+
+    return `${needspaceDirective}
+\\section{${sectionName}}
+
+${firstEntry}${showIfNotEmpty(
+      remainingEntries,
+      `\n\n${remainingEntries
+        .map((entry) => `${needspaceDirective}\n${entry}`)
+        .join('\n\n')}`
+    )}`
+  }
+
+  /**
    * Render a redefinition of \httplink and \httpslink to support full URLs.
    *
    * The original moderncv \httplink and \httpslink macros always prepend
@@ -214,6 +278,7 @@ class ModerncvBase extends LatexRenderer {
       // layout
       this.renderGeometry(),
       this.renderPageNumbersConfig(),
+      this.renderNeedspaceConfig(),
 
       // language specific
       this.renderBabelConfig(),
@@ -375,15 +440,16 @@ class ModerncvBase extends LatexRenderer {
       return ''
     }
 
-    return `\\section{${sectionNames.education}}
-
-${education
+    return this.renderEntriesSection(
+      sectionNames.education,
+      education
   .map(
     ({
       computed: { startDate, dateRange, degreeAreaAndScore, summary, courses },
       institution,
       url,
-    }) => `\\cventry{${showIfNotEmpty(startDate, dateRange)}}
+    }) =>
+      `\\cventry{${showIfNotEmpty(startDate, dateRange)}}
         {${degreeAreaAndScore}}
         {${this.renderLinkedText(institution, url)}}
         {${this.renderUrl(url)}}
@@ -402,7 +468,7 @@ ${education
           )}`
         )}}`
   )
-  .join('\n\n')}`
+    )
   }
 
   /**
@@ -425,9 +491,9 @@ ${education
       return ''
     }
 
-    return `\\section{${computed.sectionNames.work}}
-
-${work
+    return this.renderEntriesSection(
+      computed.sectionNames.work,
+      work
   .map(
     ({
       computed: { startDate, dateRange, summary, keywords },
@@ -455,7 +521,7 @@ ${work
         )}}`
     }
   )
-  .join('\n\n')}`
+    )
   }
 
   /**
@@ -547,18 +613,19 @@ ${skills
       return ''
     }
 
-    return `\\section{${sectionNames.awards}}
-
-${awards
+    return this.renderEntriesSection(
+      sectionNames.awards,
+      awards
   .map(
-    ({ computed: { date, summary }, awarder, title }) => `\\cventry{${date}}
+    ({ computed: { date, summary }, awarder, title }) =>
+      `\\cventry{${date}}
         {${awarder}}
         {${title}}
         {}
         {}
         {${summary}}`
   )
-  .join('\n\n')}`
+    )
   }
 
   /**
@@ -578,18 +645,19 @@ ${awards
       return ''
     }
 
-    return `\\section{${sectionNames.certificates}}
-
-${certificates
+    return this.renderEntriesSection(
+      sectionNames.certificates,
+      certificates
   .map(
-    ({ computed: { date }, issuer, name, url }) => `\\cventry{${date}}
+    ({ computed: { date }, issuer, name, url }) =>
+      `\\cventry{${date}}
         {${issuer}}
         {${this.renderLinkedText(name, url)}}
         {${this.renderUrl(url)}}
         {}
         {}`
   )
-  .join('\n\n')}`
+    )
   }
 
   /**
@@ -609,9 +677,9 @@ ${certificates
       return ''
     }
 
-    return `\\section{${sectionNames.publications}}
-
-${publications
+    return this.renderEntriesSection(
+      sectionNames.publications,
+      publications
   .map(
     ({
       computed: { releaseDate, summary },
@@ -625,7 +693,7 @@ ${publications
         {}
         {${summary}}`
   )
-  .join('\n\n')}`
+    )
   }
 
   /**
@@ -647,9 +715,9 @@ ${publications
 
     switch (this.style) {
       case 'banking':
-        return `\\section{${sectionNames.references}}
-
-${references
+        return this.renderEntriesSection(
+          sectionNames.references,
+          references
   .map(
     ({
       email,
@@ -664,7 +732,7 @@ ${references
         {}
         {${summary}}`
   )
-  .join('\n\n')}`
+        )
 
       case 'casual':
       case 'classic':
@@ -674,9 +742,9 @@ ${references
         // be hyphenated while `email`s are generally longer and cannot be
         // hyphenated. So if email is too long, the visually result would be
         // pretty as it will overlap with the right side text.
-        return `\\section{${sectionNames.references}}
-
-${references
+        return this.renderEntriesSection(
+          sectionNames.references,
+          references
   .map(
     ({
       email,
@@ -691,7 +759,7 @@ ${references
         {}
         {${showIfNotEmpty(summary, summary)}}`
   )
-  .join('\n\n')}`
+        )
     }
   }
 
@@ -713,9 +781,9 @@ ${references
       return ''
     }
 
-    return `\\section{${computed.sectionNames.projects}}
-
-${projects
+    return this.renderEntriesSection(
+      computed.sectionNames.projects,
+      projects
   .map(
     ({
       name,
@@ -741,7 +809,7 @@ ${projects
           )}`
         )}}`
   )
-  .join('\n\n')}`
+    )
   }
 
   /**
@@ -779,9 +847,9 @@ ${interests
       return ''
     }
 
-    return `\\section{${computed.sectionNames.volunteer}}
-
-${volunteer
+    return this.renderEntriesSection(
+      computed.sectionNames.volunteer,
+      volunteer
   .map(
     ({
       position,
@@ -796,7 +864,7 @@ ${volunteer
         {${showIfNotEmpty(summary, summary)}}
     `
   )
-  .join('\n\n')}`
+    )
   }
 
   /**
